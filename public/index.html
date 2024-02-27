@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Login View</title>
+</head>
+<body>
+  <div class="mt-12 flex flex-col h-screen justify-start items-center">
+    <div class="rounded-3xl shadow-lg p-8 rounded-4xl flex flex-col w-fit">
+      <div class="flex flex-row bg-green p-1 rounded-3xl">
+        <button onclick="switchTab('login')" class="tab_switch active_tab" id="loginTab">Login</button>
+        <button onclick="switchTab('register')" class="tab_switch" id="registerTab">Sign up</button>
+      </div>
+      <div class="mt-3 p-3 bg-red-100 text-red-700 w-full rounded-lg" id="errorDisplay"></div>
+      <div id="loginTabContent">
+        <form onsubmit="login(event)">
+          <h1 class="text-green text-3xl text-left py-6">Log in</h1>
+          <div class="flex flex-col gap-4 text-left">
+            <p class="p-0 m-0">Enter your credentials to log in to our platform.</p>
+            <input class="form_input" id="loginEmail" type="email" placeholder="johndoe@gmail.com" required>
+            <input class="form_input" id="loginPassword" type="password" placeholder="password" required>
+            <button type="submit" class="bg-green w-full py-3 text-white rounded-3xl">Continue</button>
+          </div>
+        </form>
+        <div class="mt-5">
+          <button onclick="googleAuth()" class="border-2 w-full py-3 rounded-3xl">Continue with Google</button>
+        </div>
+      </div>
+      <div id="registerTabContent" style="display: none;">
+        <form onsubmit="register(event)">
+          <h1 class="text-green text-3xl text-left py-6">Create your account</h1>
+          <div class="flex flex-col gap-4 text-left">
+            <p class="p-0 m-0">Create a free account to continue on our platform</p>
+            <input class="form_input" id="registerUsername" type="text" placeholder="Full Name" required>
+            <input class="form_input" id="registerEmail" type="email" placeholder="johndoe@gmail.com" required>
+            <input class="form_input" id="registerPassword" type="password" placeholder="password" required>
+            <button type="submit" class="bg-green w-full py-3 text-white rounded-3xl">Continue</button>
+          </div>
+        </form>
+        <div class="mt-5">
+          <button onclick="googleAuth()" class="border-2 w-full py-3 rounded-3xl">Continue with Google</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
