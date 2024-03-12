@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
       type: String,
     },
     googleId: { type: String},
-    provider: { type: String, enum: ["bright-next", "google", "microsoft", "facebook", "linkedin"], default: "native"},
+    provider: { type: String, enum: ["bright-next", "google", "microsoft", "facebook", "linkedin"], default: "bright-next"},
     role: {
       type: String,
       enum: ['admin', 'manager'], // Example roles; adjust as needed
