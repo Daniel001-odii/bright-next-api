@@ -1,10 +1,83 @@
 const bcrypt = require('bcrypt');
-
 const User = require('../models/userModel'); // Import the User model
-
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+
+
+// GOOGLE STUFFS.....
+const { OAuth2Client } = require('google-auth-library')
+const client = new OAuth2Client(
+  {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri: process.env.GOOGLE_REDIRECT_URI
+  }
+)
+
+// Call this function to validate OAuth2 authorization code sent from client-side
+async function verifyCode(code) {
+  let { tokens } = await client.getToken(code)
+  client.setCredentials({ access_token: tokens.access_token })
+  const userinfo = await client.request({
+    url: 'https://www.googleapis.com/oauth2/v3/userinfo'
+  })
+  return userinfo.data
+}
+
+
+// HANDLE USER LOGIN WITH GOOGLE...
+exports.handleGoogleAuthLogic = async (req, res) => {
+  try{
+    const authCodeFromClient = req.body;
+    try{
+    
+      const user_info = await verifyCode(authCodeFromClient.code);
+      // check is user is already exisiting using email and update and sign in if not
+      // create  a new user account and sign user in...
+      const existingUser = await User.findOne({ googleId: user_info.sub });
+      if(existingUser){
+        // Generate JWT token for authentication
+        const token = jwt.sign({ googleId: user_info.sub }, process.env.API_SECRET, { expiresIn: '1d' });
+        // Respond with the token and user information
+        res.status(200).json({
+          message: 'user login successful',
+          token
+        });
+      }
+          // IF GOOGLE USER NOT EXISTING......
+      else{
+        const newUser = new User({
+          googleId: user_info.sub,
+          email: user_info.email,
+          firstname: user_info.family_name,
+          lastname: user_info.given_name,
+          provider: "google",
+          avatar_url: user_info.picture,
+        });
+        await newUser.save();
+
+        // Generate JWT token for authentication
+        const token = jwt.sign({ googleId: user_info.sub }, process.env.API_SECRET, { expiresIn: '1d' });
+
+
+        res.status(200).json({
+          message: "user registered successfully",
+          token
+        });
+      }
+      
+    }catch(error){
+      console.log("error from handle google auth logic", error)
+    }
+  
+  }catch(error){
+    console.log("first google auth error: ", error)
+  }
+ 
+}
+
+
 
 // Handle user signup
 exports.signup = async (req, res) => {
@@ -35,57 +108,6 @@ exports.signup = async (req, res) => {
   }
 };
 
-// HANDLE USER LOGIN WITH GOOGLE...
-exports.googleAuthHandler = async (req, res) => {
-  try{
-    const { googleId, email, firstname, lastname, picture } = req.body;
-
-    const existingUser = await User.findOne({ googleId });
-
-    // IF GOOGLE USER IS ALREADY EXISITNG....
-    if(existingUser){
-       // Generate JWT token for authentication
-    const token = jwt.sign({ googleId:googleId }, process.env.API_SECRET, { expiresIn: '1d' });
-
-    // Respond with the token and user information
-    res.status(200).json({
-      message: 'Sign-in successful',
-      token,
-      user: {
-        firstname: firstname,
-        lastname: lastname,
-        email: email,
-        googleId: googleId
-      }
-    });
-    }
-    // IF GOOGLE USER NOT EXISTING......
-    else{
-
-      const newUser = new User({
-        googleId: googleId,
-        email: email,
-        firstname: firstname,
-        lastname: lastname,
-        provider: "google",
-        avatar_url: picture,
-      });
-
-      await newUser.save();
-
-      res.status(200).json({
-        message: "user registered successfully",
-        newUser
-      });
-       // Log in the new user
-      console.log('New user logged in:', newUser);
-    }
-
-  }
-  catch(error){
-    console.error(error)
-  }
-};
 
 // Handle user sign-in
 exports.signin = async (req, res) => {

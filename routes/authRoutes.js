@@ -11,7 +11,7 @@ router.post('/login', authController.signin);
 router.post('/register', authController.signup);
 
 // google auth handler
-router.post('/google-auth', authController.googleAuthHandler);
+router.post('/google-auth', authController.handleGoogleAuthLogic);
 
 // sendPassResetLink
 router.post('/passreset', authController.sendPasswordResetEmail);
