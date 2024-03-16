@@ -21,6 +21,7 @@ const passport = require('passport');
 const session = require('express-session');
 const mongoose = require('mongoose');
 // app.use(cors());
+const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 
 
 app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true }));
@@ -56,6 +57,17 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('Error connecting to database:', err);
     // Handle connection errors here
   });
+
+
+// Profile route (protected)
+app.get('/api/profile', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json(req.user);
+  } else {
+    res.status(401).json({ message: 'Unauthorized' });
+  }
+});
+
 
 
 

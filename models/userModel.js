@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema({
     },
     email: {
       type: String,
-      // required: true,
       unique: true
     },
     firstname: { type: String, set: (value) => value.toLowerCase()},
@@ -18,6 +17,7 @@ const userSchema = new mongoose.Schema({
       type: String,
     },
     googleId: { type: String},
+    facebookId: { type: String},
     provider: { type: String, enum: ["bright-next", "google", "microsoft", "facebook", "linkedin"], default: "bright-next"},
     role: {
       type: String,

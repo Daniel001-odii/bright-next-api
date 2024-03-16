@@ -77,7 +77,54 @@ exports.handleGoogleAuthLogic = async (req, res) => {
  
 }
 
+// HANDLE USER LOGIN WITH FACEBOOK...
+exports.handleFacebookAuthLogic = async (req, res) => {
+  try{
+    const user = req.body
+    console.log("from frontend fb auth: ", user)
+    try{
+    
+      // check if user is already exisiting using email and update and sign in if not
+      // create  a new user account and sign user in...
+      const existingUser = await User.findOne({ facebookId: user.id });
+      if(existingUser){
+        // Generate JWT token for authentication
+        const token = jwt.sign({ facebookId: user.id }, process.env.API_SECRET, { expiresIn: '1d' });
+        // Respond with the token and user information
+        res.status(200).json({
+          message: 'user login successful',
+          token
+        });
+      }
+          // IF GOOGLE USER NOT EXISTING......
+      else{
+        const newUser = new User({
+          facebookId: user.id,
+          username: user.name,
+          avatar_url: user.picture,
+          provider: "facebook",
+        });
+        await newUser.save();
 
+        // Generate JWT token for authentication
+        const token = jwt.sign({ facebookId: user.id }, process.env.API_SECRET, { expiresIn: '1d' });
+
+
+        res.status(200).json({
+          message: "user registered successfully",
+          token
+        });
+      }
+      
+    }catch(error){
+      console.log("error from handle facebook auth logic", error)
+    }
+  
+  }catch(error){
+    console.log("first facebook auth error: ", error)
+  }
+ 
+}
 
 // Handle user signup
 exports.signup = async (req, res) => {
