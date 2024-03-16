@@ -111,8 +111,9 @@ exports.handleFacebookAuthLogic = async (req, res) => {
         const token = jwt.sign({ facebookId: user.id }, process.env.API_SECRET, { expiresIn: '1d' });
         console.log("fb account register successful")
         res.status(200).json({
-          message: "user registered successfully",
-          token
+          message: "fb account registered successfully",
+          token,
+          newUser
         });
       }
       
