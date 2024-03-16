@@ -81,12 +81,12 @@ exports.handleGoogleAuthLogic = async (req, res) => {
 exports.handleFacebookAuthLogic = async (req, res) => {
   try{
     const user = req.body
-    console.log("from frontend fb auth: ", user)
+    // console.log("from frontend fb auth: ", user)
     try{
     
       // check if user is already exisiting using email and update and sign in if not
       // create  a new user account and sign user in...
-      const existingUser = await User.findOne({ facebookId: user.id });
+      const existingUser = await User.findOne({ facebookId: user.id, provider: "facebook" });
       if(existingUser){
         // Generate JWT token for authentication
         const token = jwt.sign({ facebookId: user.id }, process.env.API_SECRET, { expiresIn: '1d' });
@@ -97,7 +97,7 @@ exports.handleFacebookAuthLogic = async (req, res) => {
           token
         });
       }
-          // IF GOOGLE USER NOT EXISTING......
+          // IF FACEBOOK USER NOT EXISTING......
       else{
         const newUser = new User({
           facebookId: user.id,

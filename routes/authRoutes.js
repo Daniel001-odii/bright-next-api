@@ -18,12 +18,13 @@ router.post('/pass/reset', authController.resetPassword);
 
 
 // AUTH PROVIDER ROUTES >>>
+// facebook auth handler
+router.post('/facebook-auth', authController.handleFacebookAuthLogic);
 
 // google auth handler
 router.post('/google-auth', authController.handleGoogleAuthLogic);
 
-// facebook auth handler
-router.post('/facebook-auth', authController.handleFacebookAuthLogic);
+
 
 
 
