@@ -33,14 +33,14 @@ const authenticateUser = async (req, res, next) => {
       req.userGoogleId = userByGoogleId.googleId;
       req.userId = userByGoogleId._id;
       req.user = userByGoogleId;
-      console.log(req)
+      console.log(req.user)
     } else {
       // If user is found by userId, set the properties accordingly
       
       req.userGoogleId = user.googleId;
       req.userId = user._id;
       req.user = user;
-      console.log(req)
+      console.log(req.user)
     }
     
     next();

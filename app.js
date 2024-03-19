@@ -21,7 +21,7 @@ const passport = require('passport');
 const session = require('express-session');
 const mongoose = require('mongoose');
 // app.use(cors());
-const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
+// const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 
 
 app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true }));

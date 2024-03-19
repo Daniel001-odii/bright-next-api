@@ -24,6 +24,9 @@ router.post('/facebook-auth', authController.handleFacebookAuthLogic);
 // google auth handler
 router.post('/google-auth', authController.handleGoogleAuthLogic);
 
+// linkedin code exchanger to get access token
+router.post('/linkedin-auth/:code', authController.exchangeLinkedinCodeForToken);
+
 
 
 

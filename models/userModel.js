@@ -18,6 +18,8 @@ const userSchema = new mongoose.Schema({
     },
     googleId: { type: String},
     facebookId: { type: String},
+    linkedinId: { type: String},
+    MicrosoftId: { type: String},
     provider: { type: String, enum: ["bright-next", "google", "microsoft", "facebook", "linkedin"], default: "bright-next"},
     role: {
       type: String,

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
+const axios = require('axios')
 
 // GOOGLE STUFFS.....
 const { OAuth2Client } = require('google-auth-library')
@@ -127,6 +128,88 @@ exports.handleFacebookAuthLogic = async (req, res) => {
  
 }
 
+// HANDLE USER LOGIN WITH LINKEDIN...
+exports.exchangeLinkedinCodeForToken = async (req, res) => {
+  const code = req.params.code;
+
+  try {
+    // Exchange the authorization code for an access token
+    const tokenResponse = await axios.post(`https://www.linkedin.com/oauth/v2/accessToken`, null, {
+      params: {
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: process.env.LINKEDIN_CALLBACK_URI,
+        client_id: process.env.LINKEDIN_CLIENT_ID,
+        client_secret: process.env.LINKEDIN_CLIENT_SECRET
+      }
+    });
+
+    // Extract access token from the response
+    const accessToken = tokenResponse.data.access_token;
+
+    // Use the access token to fetch user details
+    const userDetailsResponse = await axios.get(`https://api.linkedin.com/v2/userinfo`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    // Extract user details from the response
+    const user = userDetailsResponse.data;
+    // ////////
+
+// console.log("from linkedin API: ", user)
+
+    // STORE USER DETAILS TO DATABASE HERE IF IT MAKES YOU HAPPY....
+    // check if user is already exisiting using email and update and sign in if not
+      // create  a new user account and sign user in...
+      try{
+        const existingUser = await User.findOne({ linkedinId: user.sub,  email: user.email, provider: "linkedin" });
+        
+        if(existingUser){
+          // console.log("existng linkedin user found: ", existingUser)
+          // Generate JWT token for authentication
+          const token = jwt.sign({ linkedinId: user.sub }, process.env.API_SECRET, { expiresIn: '1d' });
+          // Respond with the token and user information
+          // console.log("linkedin account login success");
+          res.status(200).json({
+            message: 'user login successful',
+            token
+          });
+        }
+            // IF LINKEDIN USER NOT EXISTING......
+        else{
+          const newUser = new User({
+            linkedinId: user.sub,
+            firstname: user.given_name,
+            lastname: user.family_name,
+            avatar_url: user.picture,
+            email: user.email,
+            provider: "linkedin",
+          });
+          await newUser.save();
+  
+          // Generate JWT token for authentication
+          const token = jwt.sign({ linkedinId: user.sub }, process.env.API_SECRET, { expiresIn: '1d' });
+          // console.log("linkedn account register successful")
+          res.status(200).json({
+            message: "linkedn account registered successfully",
+            token,
+            newUser
+          });
+        }
+      }catch(error){
+        // console.log("error saving user to DB: ", error)
+      }
+    
+  } catch (error) {
+    console.error('Error exchanging code for token:', error);
+    res.status(500).json({ error: 'Error exchanging code for token' });
+  }
+};
+
+
+
 // Handle user signup
 exports.signup = async (req, res) => {
   const { username, email, password } = req.body;
@@ -175,7 +258,7 @@ exports.signin = async (req, res) => {
     }
 
     // Generate JWT token for authentication
-    const token = jwt.sign({ userId: user._id }, process.env.API_SECRET, { expiresIn: 86400 });
+    const token = jwt.sign({ userId: user._id }, process.env.API_SECRET, { expiresIn: '1d' });
 
     // Respond with the token and user information
     res.status(200).json({
