@@ -132,6 +132,8 @@ exports.handleFacebookAuthLogic = async (req, res) => {
 exports.exchangeLinkedinCodeForToken = async (req, res) => {
   const code = req.params.code;
 
+  console.log("login detected via linkedin...")
+
   try {
     // Exchange the authorization code for an access token
     const tokenResponse = await axios.post(`https://www.linkedin.com/oauth/v2/accessToken`, null, {
@@ -158,7 +160,7 @@ exports.exchangeLinkedinCodeForToken = async (req, res) => {
     const user = userDetailsResponse.data;
     // ////////
 
-// console.log("from linkedin API: ", user)
+console.log("from linkedin API: ", user);
 
     // STORE USER DETAILS TO DATABASE HERE IF IT MAKES YOU HAPPY....
     // check if user is already exisiting using email and update and sign in if not
@@ -199,7 +201,7 @@ exports.exchangeLinkedinCodeForToken = async (req, res) => {
           });
         }
       }catch(error){
-        // console.log("error saving user to DB: ", error)
+        console.log("error saving user to DB: ", error);
       }
     
   } catch (error) {
