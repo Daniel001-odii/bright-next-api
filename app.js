@@ -16,6 +16,7 @@ app.use(cors());
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const courseRoutes = require("./routes/courseRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const path = require('path');
 
@@ -48,6 +49,7 @@ app.use(express.urlencoded({
 app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 app.use('/api', courseRoutes);
+app.use('/api', paymentRoutes);
 
 
 // Connect to the db

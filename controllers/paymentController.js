@@ -1,5 +1,4 @@
-// const stripe = require('stripe')(process.env.STRIPE_TEST_KEY);
-
+const stripe = require('stripe')(process.env.STRIPE_TEST_KEY);
 const APP_URL = process.env.GOOGLE_REDIRECT_URI;
 
 
