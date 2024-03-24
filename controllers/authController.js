@@ -335,8 +335,17 @@ exports.sendPasswordResetEmail = async (req, res) => {
     }
 };
 
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'danielsinterest@gmail.com',
+    pass: 'qdjctvwagyujlqyg',
+  },
+});
+
 // handle reset password request by users...
-exports.resetPassword = async (req, res) => {
+exports.resetPassword2 = async (req, res) => {
     const { resetToken, newPassword } = req.body;
 
     try {
@@ -365,4 +374,50 @@ exports.resetPassword = async (req, res) => {
       console.error('Error resetting password:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { newPassword } = req.body;
+  const { resetToken }  = req.body;
+
+  console.log("observer token: ", resetToken)
+
+  try {
+      // Find the user by the reset token and ensure it's not expired
+      const user = await User.findOne({ password_reset_token: resetToken, password_reset_expiry: { $gt: Date.now() }, // Ensure the token is not expired
+      });
+
+      if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+      }
+
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(newPassword, 8);
+
+      // Update the user's password and clear the reset token fields
+      user.password = hashedPassword;
+      user.password_reset_token = undefined;
+      user.password_reset_expiry = undefined;
+      await user.save();
+
+      const mailOptions = {
+          from: 'danielsinterest@gmail.com',
+          to: user.email,
+          subject: 'Bright-Next Password Set Successfully',
+          html: `<p>You successfully reset your password!</p>`
+        };
+      
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error('Error sending email:', error);
+              return res.status(500).json({ message: 'Failed to send reset success email' });
+            }
+          //   console.log('Reset email sent:', info.response);
+            res.status(200).json({ message: 'Password reset email sent successful' });
+          });
+      res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
 };

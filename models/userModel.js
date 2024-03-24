@@ -39,6 +39,8 @@ const userSchema = new mongoose.Schema({
     last_login: Date,
     avatar_url: {type: String, default: 'https://icon-library.com/images/no-profile-pic-icon/no-profile-pic-icon-11.jpg'},
     bio: String,
+    password_reset_token: String,
+    password_reset_expiry: Date,
     verfication:{
       is_verified: {
         type: Boolean,

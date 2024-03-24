@@ -17,6 +17,7 @@ const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const invoiceRoutes = require("./routes/invoiceRoutes")
 
 const path = require('path');
 
@@ -50,6 +51,7 @@ app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 app.use('/api', courseRoutes);
 app.use('/api', paymentRoutes);
+app.use('/api', invoiceRoutes);
 
 
 // Connect to the db

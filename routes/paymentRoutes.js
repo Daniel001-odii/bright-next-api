@@ -4,7 +4,9 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const paymentController = require("../controllers/paymentController");
 
 
-router.post("/payment/stripe", paymentController.payWithStripe);
+router.post("/payment/stripe", authMiddleware, paymentController.payWithStripe);
+
+router.post("/payment/stripe/guest", paymentController.guestPayWithStripe);
 
 
 

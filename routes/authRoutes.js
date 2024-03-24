@@ -14,7 +14,7 @@ router.post('/register', authController.signup);
 router.post('/passreset', authController.sendPasswordResetEmail);
 
 // passReset initialize
-router.post('/pass/reset', authController.resetPassword);
+router.post('/pass/:reset_token/reset', authController.resetPassword);
 
 
 // AUTH PROVIDER ROUTES >>>

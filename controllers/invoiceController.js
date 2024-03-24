@@ -17,7 +17,7 @@ exports.createInvoice = async (req, res) => {
 // Get all invoices
 exports.getAllUserInvoices = async (req, res) => {
     try {
-        const invoices = await Invoice.find({ user: req.userId });
+        const invoices = await Invoice.find({ user: req.userId }).populate('courses');
         res.status(200).json(invoices);
     } catch (error) {
         res.status(500).json({ error: "Internal server error" });
