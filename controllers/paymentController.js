@@ -1,5 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_TEST_KEY);
 const APP_URL = process.env.GOOGLE_REDIRECT_URI;
+const Invoice = require("../models/invoiceModel");
 
 
 exports.payWithStripe = async (req, res) => {
@@ -16,8 +17,8 @@ exports.payWithStripe = async (req, res) => {
             currency: 'usd',
         });
 
-        console.log("got a product: ", stripe_product);
-        console.log("added price for product ", stripe_price);
+        // I REMOVED CONSOLE DOT LOG FROM HERE....
+
 
         const session = await stripe.checkout.sessions.create({
             line_items: [{
@@ -29,7 +30,15 @@ exports.payWithStripe = async (req, res) => {
             cancel_url: `${APP_URL}/bn/dashboard`,
         });
 
-        res.status(200).json({ session_url: session.url })
+        res.status(200).json({ session_url: session.url });
+
+        // CREATE INVOICE FOR EACH PURCHASE HERE...
+        const invoice = new Invoice({
+            user: req.userId,
+            purchase: PRODUCT_FROM_CLIENT.name
+        })
+        await invoice.save();
+
 
 
     }catch(error){
