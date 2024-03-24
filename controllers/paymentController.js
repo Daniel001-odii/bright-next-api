@@ -5,15 +5,22 @@ const Invoice = require("../models/invoiceModel");
 
 exports.payWithStripe = async (req, res) => {
     try{
-        const PRODUCT_FROM_CLIENT = req.body;
+        /*
+        *course_purchase: {
+            name: <MAY BE COMBINED NAME OF COURSES>
+            amount: < MAY BE COMBINED AMOUNT>
+            courses: < AN ARRAY OF THE PURCHASED COURSE ID's >
+        }
+        */
+        const course_purchase = req.body;
 
         const stripe_product = await stripe.products.create({
-            name: PRODUCT_FROM_CLIENT.name,
+            name: course_purchase.name,
         });
 
         const stripe_price = await stripe.prices.create({
             product: stripe_product.id,
-            unit_amount: PRODUCT_FROM_CLIENT.amount,
+            unit_amount: course_purchase.amount,
             currency: 'usd',
         });
 
@@ -35,7 +42,10 @@ exports.payWithStripe = async (req, res) => {
         // CREATE INVOICE FOR EACH PURCHASE HERE...
         const invoice = new Invoice({
             user: req.userId,
-            purchase: PRODUCT_FROM_CLIENT.name
+            title: course_purchase.name,
+            payment_method: "stripe",
+            amount: course_purchase.amount,
+            courses: course_purchase.courses
         })
         await invoice.save();
 
@@ -55,15 +65,15 @@ GUEST USER PAYMENTS
 */
 exports.guestPayWithStripe = async (req, res) => {
     try{
-        const PRODUCT_FROM_CLIENT = req.body;
+        const course_purchase = req.body;
 
         const stripe_product = await stripe.products.create({
-            name: PRODUCT_FROM_CLIENT.name,
+            name: course_purchase.name,
         });
 
         const stripe_price = await stripe.prices.create({
             product: stripe_product.id,
-            unit_amount: PRODUCT_FROM_CLIENT.amount,
+            unit_amount: course_purchase.amount,
             currency: 'usd',
         });
 
