@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
+const authMiddleware = require('../middlewares/authMiddleware');
+
 
 // Routes for course CRUD operations
 router.get('/courses', courseController.getAllCourses);
@@ -9,8 +11,8 @@ router.get('/courses/:title', courseController.getCourseByTitle);
 router.patch('/courses/:title', courseController.editCourseByTitle);
 router.delete('/courses/:title', courseController.deleteCourseByTitle);
 
-// Additional routes
+// route to enroll course...
+router.post('/courses/:course_id/enroll', authMiddleware, courseController.enrollCourse);
 
-router.post('/courses/:courseId/enroll', courseController.enrollCourse);
 
 module.exports = router;

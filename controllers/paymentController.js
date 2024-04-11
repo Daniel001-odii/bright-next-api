@@ -24,24 +24,24 @@ exports.payWithStripe = async (req, res) => {
 
         const stripe_price = await stripe.prices.create({
             product: stripe_product.id,
-            unit_amount: course_purchase.amount,
+            unit_amount: course_purchase.amount * 100,
             currency: 'usd',
         });
 
         // I REMOVED CONSOLE DOT LOG FROM HERE....
 
-
         const session = await stripe.checkout.sessions.create({
+            ui_mode: 'embedded',
             line_items: [{
                 price: stripe_price.id,
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `${APP_URL}/bn/thankyou`,
-            cancel_url: `${APP_URL}/bn/dashboard`,
+            return_url: `${APP_URL}/return.html?session_id={CHECKOUT_SESSION_ID}`,
         });
+       
 
-        res.status(200).json({ session_url: session.url });
+        res.status(200).json({ session_url });
 
         // CREATE INVOICE FOR EACH PURCHASE HERE...
         const invoice = new Invoice({
@@ -62,6 +62,19 @@ exports.payWithStripe = async (req, res) => {
     }
 }
 
+/*
+DEPRECATED SSION FUNCTION I USED BEFORE USING EBEDDED MODE.....
+
+ const session = await stripe.checkout.sessions.create({
+            line_items: [{
+                price: stripe_price.id,
+                quantity: 1,
+            }],
+            mode: 'payment',
+            success_url: `${APP_URL}/bn/thankyou`,
+            cancel_url: `${APP_URL}/bn/dashboard`,
+        });
+*/
 
 /*
 **

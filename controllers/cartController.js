@@ -48,25 +48,32 @@ exports.addCourseToCart = async (req, res) => {
   }
 }
 
-
 exports.removeCourseFromCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.userId });
-    const coursesToRemove = req.body.courses;
+    const courseIdToRemove = req.params.course_id;
 
-    cart.courses = cart.courses.filter(courseId => !coursesToRemove.includes(courseId));
-    await cart.save()
-
-    console.log("your courses after the operation: ", cart)
-
+    // Find the index of the course with the specified ID
+    const index = cart.courses.indexOf(courseIdToRemove);
+    
+    // Remove the course from the cart's courses array
+    if (index !== -1) {
+      cart.courses.splice(index, 1);
+    } else {
+      return res.status(404).json({ message: "Course not found in cart" });
+    }
+    
+    // Save the updated cart
     await cart.save();
-    res.status(200).json({ message: "Courses removed from cart successfully!" });
-  } catch (error) {
-    console.log("Error removing courses from cart: ", error);
-    res.status(500).json({ message: "Error removing courses from cart: ", error });
-  }
-}
 
+    console.log("Your courses after the operation: ", cart);
+
+    res.status(200).json({ message: "Course removed from cart successfully!" });
+  } catch (error) {
+    console.log("Error removing course from cart: ", error);
+    res.status(500).json({ message: "Error removing course from cart: ", error });
+  }
+};
 
 
 

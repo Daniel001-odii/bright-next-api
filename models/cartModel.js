@@ -10,7 +10,6 @@ const CartSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId, ref: 'Course'
         }
     ],
-
   }, { timestamps: true });
   
   const Cart = mongoose.model('Cart', CartSchema);
