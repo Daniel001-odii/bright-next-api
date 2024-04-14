@@ -83,6 +83,7 @@ exports.deleteCourseByTitle = async (req, res) => {
     }
 };
 
+// user enroll course [literally adds course to user's cart]...
 exports.enrollCourse = async (req, res) => {
     try {
         // Logic to enroll a user in a course
@@ -119,4 +120,29 @@ exports.enrollCourse = async (req, res) => {
     }
 };
 
+
+exports.getCoursesByArray = async (req, res) => {
+    try {
+        const { coursesArray } = req.body;
+
+        // console.log("array from client: ", coursesArray);
+
+        let courses = [];
+
+        for(let i = 0; i < coursesArray.length; i++){
+            const course = await Course.findOne({ _id: coursesArray[i] });
+            if (course) {
+                courses.push(course);
+            } else {
+                // Handle case where course is not found
+                res.status(200).json({ message: `course: ${course} not found`})
+            }
+        }
+
+        res.status(200).json(courses);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+        console.log("error getting course array: ", error)
+    }
+};
 

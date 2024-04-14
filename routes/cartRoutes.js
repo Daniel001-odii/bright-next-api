@@ -11,4 +11,7 @@ router.get('/cart', authMiddleware, cartController.getUserCart);
 // remove a course from the user's cart...
 router.post('/cart/courses/:course_id/remove', authMiddleware, cartController.removeCourseFromCart);
 
+// remove a course from the user's cart...
+// router.post('/cart/courses/:course_id/remove', authMiddleware, cartController.removeCourseFromCart);
+
 module.exports = router;

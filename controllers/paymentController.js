@@ -62,6 +62,42 @@ exports.payWithStripe = async (req, res) => {
     }
 }
 
+
+exports.createPaymentSession =  async (req, res) => {
+
+    // CREATE PRODUCT HERE >>>
+    const product = await stripe.products.create({
+      name: 'Full Javascript Course 21hrs+ by Chidera Emmanuel 5.0 Stars',
+    });
+  
+    // CREATE PRICE HERE >>>
+    const PRICE = await stripe.prices.create({
+      product: product.id,
+      unit_amount: 250*100,
+      currency: 'usd',
+    });
+  
+    console.log("created a product successfully: ", product)
+  
+    // UTILIZE SESSSION FOR CREATED PRODUCT AND PRICES >>>
+    const session = await stripe.checkout.sessions.create({
+      ui_mode: 'embedded',
+      line_items: [
+        {
+          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+          price: PRICE.id,
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+    //   return_url: `${YOUR_DOMAIN}/return.html?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: "http://localhost:8080",
+    });
+  
+    // res.send({clientSecret: session.client_secret});
+    res.status(200).json({ session });
+  };
+  
 /*
 DEPRECATED SSION FUNCTION I USED BEFORE USING EBEDDED MODE.....
 
