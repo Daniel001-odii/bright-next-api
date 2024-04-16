@@ -51,6 +51,8 @@ const userSchema = new mongoose.Schema({
         default: null  // The date of verification, null if not verified yet
       },
     },
+
+    stripe_payment_intent: String,
   }, { timestamps: true });
   
   const User = mongoose.model('User', userSchema);
