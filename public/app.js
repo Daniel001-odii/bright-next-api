@@ -18,7 +18,7 @@ async function login(event) {
       email: document.getElementById('loginEmail').value,
       password: document.getElementById('loginPassword').value,
     });
-    console.log(response);
+    // console.log(response);
   } catch (error) {
     console.error(error);
     document.getElementById('errorDisplay').innerText = error.response.data.message;

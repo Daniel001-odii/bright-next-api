@@ -380,7 +380,7 @@ exports.resetPassword = async (req, res) => {
   const { newPassword } = req.body;
   const { resetToken }  = req.body;
 
-  console.log("observer token: ", resetToken)
+  // console.log("observer token: ", resetToken)
 
   try {
       // Find the user by the reset token and ensure it's not expired
