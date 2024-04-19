@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const { ssrRenderSlotInner } = require('vue/server-renderer');
 
 
 // Routes for course CRUD operations
@@ -16,6 +17,9 @@ router.delete('/courses/:title', courseController.deleteCourseByTitle);
 
 // route to enroll course...
 router.post('/courses/:course_id/enroll', authMiddleware, courseController.enrollCourse);
+
+// route to checkout courses and create invoice...
+router.post("/courses/enroll", authMiddleware, courseController.checkoutCoursesAndCreateInvoice);
 
 
 

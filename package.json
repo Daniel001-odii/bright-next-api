@@ -25,6 +25,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-linkedin-oauth2": "^2.0.0",
+    "paypal-rest-sdk": "^1.8.1",
     "stripe": "^14.22.0"
   }
 }

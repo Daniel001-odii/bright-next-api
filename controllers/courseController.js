@@ -2,6 +2,8 @@
 const Course = require("../models/courseModel");
 const User = require("../models/userModel");
 const Cart = require("../models/cartModel");
+const Invoice = require("../models/invoiceModel");
+
 
 /**
  * 
@@ -123,14 +125,14 @@ exports.enrollCourse = async (req, res) => {
 
 exports.getCoursesByArray = async (req, res) => {
     try {
-        const { coursesArray } = req.body;
+        const { courses_array } = req.body;
 
-        // console.log("array from client: ", coursesArray);
+        // console.log("array from client: ", courses_array);
 
         let courses = [];
 
-        for(let i = 0; i < coursesArray.length; i++){
-            const course = await Course.findOne({ _id: coursesArray[i] });
+        for(let i = 0; i < courses_array.length; i++){
+            const course = await Course.findOne({ _id: courses_array[i] });
             if (course) {
                 courses.push(course);
             } else {
@@ -146,3 +148,54 @@ exports.getCoursesByArray = async (req, res) => {
     }
 };
 
+
+exports.checkoutCoursesAndCreateInvoice = async (req, res) => {
+    try{
+        const { courses_array, payment_method, total_amount } = req.body;
+        const user_id = req.userId;
+        const cart = await Cart.findOne({ user: user_id });
+
+        // empty the user's cart after successful checkout...
+        cart.courses = null;
+        await cart.save()
+
+        // create invoice for course or courses purchased...
+        let courses = [];
+        let multiple_course_title = [];
+
+        const missingCourses = [];
+
+        for(let i = 0; i < courses_array.length; i++){
+            const course = await Course.findOne({ _id: courses_array[i] });
+            if (course) {
+                courses.push(course);
+                multiple_course_title.push(course.title);
+            } else {
+                // Collect missing courses
+                missingCourses.push(courses_array[i]);
+            }
+        }
+
+        // Check if any courses were missing
+        if (missingCourses.length > 0) {
+            return res.status(404).json({ message: `Courses not found: ${missingCourses.join(", ")}` });
+        }
+
+
+        const invoice = new Invoice({
+            user: user_id,
+            courses: courses_array,
+            payment_method,
+            title: `invoice for ${multiple_course_title.join(" & ")} course purchase`,
+            amount: total_amount
+        });
+
+        await invoice.save();
+
+        res.status(200).json({ message: "Course Enrollment and Cart Checkout Succesfull"})
+
+    }catch(error){
+        console.log("error enrolling courses: ", error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
