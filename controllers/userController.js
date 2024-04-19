@@ -146,7 +146,7 @@ exports.createGuestUserAccount = async (req, res) => {
       const password_reset_expiry = Date.now() + 3600000;
   
       if (existingUser) {
-        return res.status(400).json({ message: 'Sorry, this email is already registered' });
+        return res.status(201).json({ message: 'Sorry, this email is already registered' });
       } else {
         const newUser = new User({
           email,
@@ -167,6 +167,7 @@ exports.createGuestUserAccount = async (req, res) => {
           html: `<p>this email is a confirmation of your course purchase from bright-next academy.<br/>Find below a link to reset your password and continue enjoying the platform (link expires in 1hr</p>
                 <p><a href="${process.env.GOOGLE_REDIRECT_URI}/thankyou/${password_reset_token}">Click here</a> to quickly reset your password and Sign-in!</p>`
         };
+
   
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
@@ -178,7 +179,8 @@ exports.createGuestUserAccount = async (req, res) => {
           res.status(200).json({ message: 'confirmation and pass reset email sent' });
         });
 
-        res.status(201).json({ message: 'User Registered Successfully', user: newUser });
+
+        res.status(200).json({ message: 'User Registered Successfully', user: newUser });
       }
     }
 
@@ -247,6 +249,26 @@ exports.checkResetToken = async (req, res) => {
 
   }catch(error){
     console.error('Error checking token:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+// find user by email addresss...
+exports.findUserByEmailAddress = async (req, res) => {
+  const email = req.params.email;
+
+  try{
+    const user = await User.findOne({ email });
+
+    if(user){
+      res.status(400).json({ message: "There is already an account with this email address."})
+    } else {
+      res.status(200).json({ message: "user not found"})
+    }
+
+  }catch(error){
+    console.error('Error resetting password:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 }

@@ -25,5 +25,6 @@ router.post('/users/guest/security', userController.setPassword);
 
 router.post('/users/guest/:reset_token', userController.checkResetToken);
 
+router.post('/get-user/:email', userController.findUserByEmailAddress);
 
 module.exports = router;
