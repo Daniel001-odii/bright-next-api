@@ -18,5 +18,12 @@ router.put('/set-user/:userId', authMiddleware, userController.adjustUserData);
 // ROute for updating user settings ....
 router.put('/user-settings', authMiddleware, userController.updateUserSettings);
 
+router.post('/users/guest', userController.createGuestUserAccount);
+
+
+router.post('/users/guest/security', userController.setPassword);
+
+router.post('/users/guest/:reset_token', userController.checkResetToken);
+
 
 module.exports = router;

@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
       },
     },
 
-    stripe_payment_intent: String,
+    stripe_payment_secret: String,
   }, { timestamps: true });
   
   const User = mongoose.model('User', userSchema);

@@ -2,7 +2,7 @@
 
 const User = require("../models/userModel");
 const jwt = require('jsonwebtoken');
-
+const bcrypt = require('bcrypt');
 
   // controller function to update user data...
 exports.getUserDetailsFromToken = async (req, res) => {
@@ -47,9 +47,6 @@ exports.findUserByUsername = async (req, res) => {
       return res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   };
-
-
-  
 
 exports.updateUserSettings = async (req, res) => {
     try {
@@ -122,3 +119,86 @@ exports.adjustUserData = async (req, res) => {
       return res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   };
+
+// users who has signed up via checkout page...
+exports.createGuestUserAccount = async (req, res) => {
+  console.log("request body: ", req.body);
+
+  const { password_reset_token, email, firstname, lastname, password } = req.body.user;
+  try{
+    const existingUser = await User.findOne({ $or: [{ email }] });
+    const password_reset_expiry = Date.now() + 3600000;
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Sorry, this email is already registered' });
+    } else {
+      const newUser = new User({
+        email,
+        firstname,
+        lastname,
+        password_reset_token,
+        password_reset_expiry,
+      });
+
+      await newUser.save();
+      console.log("user account created: ", newUser);
+
+      res.status(201).json({ message: 'User Registered Successfully', user: newUser });
+    }
+    
+  }catch(error){
+    console.log("error creating user: ", error);
+    res.status(500).json({ message: "internal server error"});
+  }
+};
+
+
+exports.setPassword = async (req, res) => {
+  const { password, reset_token } = req.body;
+
+  // console.log("reset_token from client: ", req.body.reset_token);
+
+  try {
+      // Find the user by the reset token and ensure it's not expired
+      const user = await User.findOne({ password_reset_token: reset_token, password_reset_expiry: { $gt: Date.now() }, });
+
+      if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+      }
+
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(password, 8);
+
+      // Update the user's password and clear the reset token fields
+      user.password = hashedPassword;
+      user.password_reset_token = undefined;
+      user.password_reset_expiry = undefined;
+      await user.save();
+
+
+      res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+exports.checkResetToken = async (req, res) => {
+  try{
+    const reset_token = req.params.reset_token;
+    console.log("token from client: ", reset_token);
+
+    const user = await User.findOne({ password_reset_token: reset_token, password_reset_expiry: { $gt: Date.now() } });
+
+    if (!user) {
+    return res.status(400).json({ message: 'Invalid or expired reset token' });
+    } else {
+    return res.status(200).json({ message: 'reset token active' });
+    }
+
+  }catch(error){
+    console.error('Error checking token:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
