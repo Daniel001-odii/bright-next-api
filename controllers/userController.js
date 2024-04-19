@@ -3,6 +3,16 @@
 const User = require("../models/userModel");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'danielsinterest@gmail.com',
+    pass: 'qdjctvwagyujlqyg',
+  },
+});
+
 
   // controller function to update user data...
 exports.getUserDetailsFromToken = async (req, res) => {
@@ -121,30 +131,57 @@ exports.adjustUserData = async (req, res) => {
   };
 
 // users who has signed up via checkout page...
+// SEND EMAIL HERE FOR PASSWORD RESET
 exports.createGuestUserAccount = async (req, res) => {
-  console.log("request body: ", req.body);
+  console.log("user from client == ", req.body.user);
 
-  const { password_reset_token, email, firstname, lastname, password } = req.body.user;
+ 
   try{
-    const existingUser = await User.findOne({ $or: [{ email }] });
-    const password_reset_expiry = Date.now() + 3600000;
+    if(req.body.user == null){ return res.status(200).json({ message: "no user data provided"}) }
+    else {
+      const { password_reset_token, email, firstname, lastname, password } = req.body.user;
+      const existingUser = await User.findOne({ email });
+      
+      // reset link is only active for 1 hour after bieng sent..
+      const password_reset_expiry = Date.now() + 3600000;
+  
+      if (existingUser) {
+        return res.status(400).json({ message: 'Sorry, this email is already registered' });
+      } else {
+        const newUser = new User({
+          email,
+          firstname,
+          lastname,
+          password_reset_token,
+          password_reset_expiry,
+        });
 
-    if (existingUser) {
-      return res.status(400).json({ message: 'Sorry, this email is already registered' });
-    } else {
-      const newUser = new User({
-        email,
-        firstname,
-        lastname,
-        password_reset_token,
-        password_reset_expiry,
-      });
+        await newUser.save();
+        console.log("user account created: ", newUser);
 
-      await newUser.save();
-      console.log("user account created: ", newUser);
+        // SEND PASSWORD RESET LINK HERE...
+        const mailOptions = {
+          from: 'danielsinterest@gmail.com',
+          to: email,
+          subject: 'Bright Next Order Success Confirmation and Password Reset',
+          html: `<p>this email is a confirmation of your course purchase from bright-next academy.<br/>Find below a link to reset your password and continue enjoying the platform (link expires in 1hr</p>
+                <p><a href="${process.env.GOOGLE_REDIRECT_URI}/thankyou/${password_reset_token}">Click here</a> to quickly reset your password and Sign-in!</p>`
+        };
+  
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error('Error sending email:', error);
+            return res.status(500).json({ message: 'Failed to send reset email' });
+          }
+  
+          console.log('confirmation and pass reset email sent:', info.response);
+          res.status(200).json({ message: 'confirmation and pass reset email sent' });
+        });
 
-      res.status(201).json({ message: 'User Registered Successfully', user: newUser });
+        res.status(201).json({ message: 'User Registered Successfully', user: newUser });
+      }
     }
+
     
   }catch(error){
     console.log("error creating user: ", error);
@@ -152,15 +189,17 @@ exports.createGuestUserAccount = async (req, res) => {
   }
 };
 
-
+// set password controller for guest user safter checkout..
 exports.setPassword = async (req, res) => {
   const { password, reset_token } = req.body;
 
-  // console.log("reset_token from client: ", req.body.reset_token);
+  console.log("reset_token from client: ", req.body.reset_token);
 
   try {
       // Find the user by the reset token and ensure it's not expired
       const user = await User.findOne({ password_reset_token: reset_token, password_reset_expiry: { $gt: Date.now() }, });
+
+      console.log("searched user: ", user)
 
       if (!user) {
       return res.status(400).json({ message: 'Invalid or expired reset token' });
@@ -175,8 +214,10 @@ exports.setPassword = async (req, res) => {
       user.password_reset_expiry = undefined;
       await user.save();
 
-
-      res.status(200).json({ message: 'Password reset successful' });
+      // send login token...
+      // Generate JWT token for authentication
+      const token = jwt.sign({ userId: user._id }, process.env.API_SECRET, { expiresIn: '1d' });
+      res.status(200).json({ message: 'Password reset successful, please login', token: token });
   } catch (error) {
       console.error('Error resetting password:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -184,17 +225,24 @@ exports.setPassword = async (req, res) => {
 };
 
 
+// check is reset token is still valid...
 exports.checkResetToken = async (req, res) => {
   try{
     const reset_token = req.params.reset_token;
-    console.log("token from client: ", reset_token);
 
-    const user = await User.findOne({ password_reset_token: reset_token, password_reset_expiry: { $gt: Date.now() } });
+    if(reset_token){
+      console.log("token from client: ", reset_token);
 
-    if (!user) {
-    return res.status(400).json({ message: 'Invalid or expired reset token' });
+      const user = await User.findOne({ password_reset_token: reset_token, password_reset_expiry: { $gt: Date.now() } });
+
+      // check if reset token provided by user is still valid..
+      if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+      } else {
+      return res.status(200).json({ message: 'reset token active', email: user.email });
+      }
     } else {
-    return res.status(200).json({ message: 'reset token active' });
+        return res.status(400).json({ message: 'no token provided' });
     }
 
   }catch(error){
