@@ -13,6 +13,11 @@ const InvoiceSchema = new mongoose.Schema({
     },
     title: String,
     amount: Number,
+    // status: {
+    //     type: String,
+    //     enum: ["paid", "unpaid"],
+    //     default: "paid"
+    // }
     
   }, { timestamps: true });
   

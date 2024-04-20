@@ -156,7 +156,7 @@ exports.checkoutCoursesAndCreateInvoice = async (req, res) => {
         const cart = await Cart.findOne({ user: user_id });
 
         // empty the user's cart after successful checkout...
-        cart.courses = null;
+        cart.courses = [];
         await cart.save()
 
         // create invoice for course or courses purchased...
