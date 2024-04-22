@@ -1,6 +1,8 @@
 // write the controllers for all possible actions in storre...
 
 const User = require("../models/userModel");
+const Course = require("../models/courseModel");
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -269,6 +271,21 @@ exports.findUserByEmailAddress = async (req, res) => {
 
   }catch(error){
     console.error('Error resetting password:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+// get user enrolled courses in detailss...
+exports.getUserEnrolledCourses = async (req, res) => {
+  try{
+    const user = await User.findOne({ _id: req.userId }).populate("enrolled_courses");
+    const enrolled_courses = user.enrolled_courses;
+
+    res.status(200).json({ enrolled_courses });
+
+  }catch(error){
+    console.error('Error retrieving user enrolled courses:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 }

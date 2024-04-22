@@ -27,4 +27,8 @@ router.post('/users/guest/:reset_token', userController.checkResetToken);
 
 router.post('/get-user/:email', userController.findUserByEmailAddress);
 
+// get user enrolled courses...
+router.get('/user-courses', authMiddleware, userController.getUserEnrolledCourses)
+
+
 module.exports = router;

@@ -10,6 +10,8 @@ const { ssrRenderSlotInner } = require('vue/server-renderer');
 router.post('/courses/array', courseController.getCoursesByArray);
 
 router.get('/courses', courseController.getAllCourses);
+
+
 router.post('/courses', courseController.createCourse);
 router.get('/courses/:title', courseController.getCourseByTitle);
 router.patch('/courses/:title', courseController.editCourseByTitle);

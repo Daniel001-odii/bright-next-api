@@ -41,6 +41,9 @@ const userSchema = new mongoose.Schema({
     bio: String,
     password_reset_token: String,
     password_reset_expiry: Date,
+    enrolled_courses: [{
+      type: mongoose.Schema.Types.ObjectId, ref: 'Course'
+    }],
     verfication:{
       is_verified: {
         type: Boolean,

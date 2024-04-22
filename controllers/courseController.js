@@ -127,7 +127,7 @@ exports.getCoursesByArray = async (req, res) => {
     try {
         const { courses_array } = req.body;
 
-        // console.log("array from client: ", courses_array);
+        console.log("array from client: ", courses_array);
 
         let courses = [];
 
@@ -149,10 +149,17 @@ exports.getCoursesByArray = async (req, res) => {
 };
 
 
+
+/* 
+this controller does the main checkout action 
+by adding the course or courses 
+into the user's enrolled courses array
+*/
 exports.checkoutCoursesAndCreateInvoice = async (req, res) => {
     try{
         const { courses_array, payment_method, total_amount } = req.body;
         const user_id = req.userId;
+        const user = await User.findOne({ _id: user_id });
         const cart = await Cart.findOne({ user: user_id });
 
         // empty the user's cart after successful checkout...
@@ -182,6 +189,7 @@ exports.checkoutCoursesAndCreateInvoice = async (req, res) => {
         }
 
 
+        // create new invoice for course purchase...
         const invoice = new Invoice({
             user: user_id,
             courses: courses_array,
@@ -189,6 +197,10 @@ exports.checkoutCoursesAndCreateInvoice = async (req, res) => {
             title: `invoice for ${multiple_course_title.join(" & ")} course purchase`,
             amount: total_amount
         });
+
+        // save course to user's enorlled courses...
+        user.enrolled_courses.push(...courses);
+        await user.save();
 
         await invoice.save();
 
