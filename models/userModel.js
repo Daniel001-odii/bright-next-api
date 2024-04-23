@@ -42,7 +42,8 @@ const userSchema = new mongoose.Schema({
     password_reset_token: String,
     password_reset_expiry: Date,
     enrolled_courses: [{
-      type: mongoose.Schema.Types.ObjectId, ref: 'Course'
+      type: mongoose.Schema.Types.ObjectId, ref: 'Course',
+      default: []
     }],
     verfication:{
       is_verified: {
