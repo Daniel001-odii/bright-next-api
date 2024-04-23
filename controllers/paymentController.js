@@ -34,8 +34,11 @@ exports.paymentsConfig = async(req, res) => {
 // initiate a payment intent based on request from client...
 exports.createPaymentIntent = async (req, res) => {
   try {
-      const { amount } = req.body;
-      // const amount = 50000;
+      // const { amount } = req.body;
+
+      // the amount has been used for testing 
+      // please use the amount provided from the body...
+      const amount = 50000;
   
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
