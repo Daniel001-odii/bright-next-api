@@ -34,8 +34,8 @@ exports.paymentsConfig = async(req, res) => {
 // initiate a payment intent based on request from client...
 exports.createPaymentIntent = async (req, res) => {
   try {
-      // const { amount } = req.body;
-      const amount = 50000;
+      const { amount } = req.body;
+      // const amount = 50000;
   
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
@@ -61,6 +61,19 @@ exports.createPaymentIntent = async (req, res) => {
 
 exports.initiatePaypalPayment = (req, res) => {
 
+  const { product } = req.body;
+
+  console.log("product submitted by client: ", req.body)
+
+  /* 
+  product object
+
+  const product = {
+    name: <can be multiple names concatenated>,
+    price: <Number
+  }
+  */
+
   // CREATE PAYMENT CONFIGURATION JSON
   const create_payment_json = {
     "intent": "sale",
@@ -74,18 +87,18 @@ exports.initiatePaypalPayment = (req, res) => {
     "transactions": [{
         "item_list": {
             "items": [{
-                "name": "Red Sox Hat",
+                "name": "Course Enrollment",
                 "sku": "001",
-                "price": "25.00",
+                "price": `${product.price}.00`,
                 "currency": "USD",
                 "quantity": 1
             }]
         },
         "amount": {
             "currency": "USD",
-            "total": "25.00"
+            "total": `${product.price}.00`
         },
-        "description": "Hat for the best team ever"
+        "description": "Bright Next Course Enrollment"
     }]
   };
 

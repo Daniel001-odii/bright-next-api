@@ -1,3 +1,16 @@
+/*
+
+The authentication and authorization method that has been used for this API
+is only a single JWT Token which is saved in the client's Local Storage in the 
+Vue App.... this is obviously not suitable for use in a production environment,
+instead a stronger security measure should be taken like the use of 
+an access_token and a refresh_token and then stored in a httpOnly cookie for
+a more stronger security.
+
+*/
+
+
+
 require('dotenv').config();
 
 const express = require('express');
