@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
 const authMiddleware = require('../middlewares/authMiddleware');
-const { ssrRenderSlotInner } = require('vue/server-renderer');
 
 
 // Routes for course CRUD operations
