@@ -131,17 +131,26 @@ exports.getCoursesByArray = async (req, res) => {
 
         let courses = [];
 
-        for(let i = 0; i < courses_array.length; i++){
-            const course = await Course.findOne({ _id: courses_array[i] });
-            if (course) {
-                courses.push(course);
-            } else {
-                // Handle case where course is not found
-                res.status(200).json({ message: `course: ${course} not found`})
+        if(courses_array){
+
+       
+            for(let i = 0; i < courses_array.length; i++){
+                const course = await Course.findOne({ _id: courses_array[i] });
+                if (course) {
+                    courses.push(course);
+                } else {
+                    // Handle case where course is not found
+                    res.status(200).json({ message: `course: ${course} not found`})
+                }
             }
+
+            res.status(200).json(courses);
+
+        } else {
+            res.status(400).json({ message: "no cart data"})
         }
 
-        res.status(200).json(courses);
+       
     } catch (error) {
         res.status(500).json({ error: error.message });
         console.log("error getting course array: ", error)
