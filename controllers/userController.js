@@ -141,7 +141,7 @@ exports.createGuestUserAccount = async (req, res) => {
   try{
     if(req.body.user == null){ return res.status(200).json({ message: "no user data provided"}) }
     else {
-      const { password_reset_token, email, firstname, lastname, password } = req.body.user;
+      const { password_reset_token, email, firstname, lastname, password, courses_purchased } = req.body.user;
       const existingUser = await User.findOne({ email });
       
       // reset link is only active for 1 hour after bieng sent..
@@ -156,6 +156,7 @@ exports.createGuestUserAccount = async (req, res) => {
           lastname,
           password_reset_token,
           password_reset_expiry,
+          enrolled_courses: courses_purchased,
         });
 
         await newUser.save();

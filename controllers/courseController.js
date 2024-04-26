@@ -23,6 +23,7 @@ exports.getAllCourses = async (req, res) => {
     }
 };
 
+
 exports.createCourse = async (req, res) => {
     try {
         const { title, description, duration, modules, start_date, image } = req.body;
